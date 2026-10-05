@@ -4,42 +4,75 @@ const model = require("../models/categoriaModel");
 /* =====================================================
    LISTAR CATEGORIAS
 ===================================================== */
-exports.index = (req, res) => {
-    const categorias = model.listar();
-    res.render("categorias/index",
-        {
-            categorias,
-            categoriaEditar: null
-        });
+exports.index = async (req, res) => {
+  const categorias = await model.listar();
+
+  res.render("categorias/index", {
+    categorias,
+    categoriaEditar: null,
+  });
 };
 
 /* =====================================================
-   SALVAR NOVA CATEGORIA (SEM EDIÇÃO)
+   SALVAR NOVA CATEGORIA
 ===================================================== */
-exports.salvar = (req, res) => {
-    model.salvar({
-        nome: req.body.nome.toUpperCase()
-    });
-    res.redirect("/categorias");
+exports.salvar = async (req, res) => {
+  await model.salvar({
+    nome: req.body.nome.toUpperCase(),
+    descricao: req.body.descricao,
+  });
+
+  res.redirect("/categorias");
 };
 
-exports.formEditar = (req, res) => {
-    const categorias = model.listar();
-    const categoriaEditar = model.buscarPorId(req.params.id);
-    res.render('categorias/index', {
-        categorias,
-        categoriaEditar
-    });
-}
+/* =====================================================
+   FORM EDITAR
+===================================================== */
+exports.formEditar = async (req, res) => {
+  const categorias = await model.listar();
 
-exports.editar = (req, res) => {
-    model.editar(req.params.id, {
-        nome: req.body.nome.toUpperCase()
-    });
-    res.redirect('/categorias');
-}
+  const categoriaEditar = await model.buscarPorId(req.params.id);
 
-exports.excluir = (req, res) => {
-    model.excluir(req.params.id);
-    res.redirect('/categorias');
-}
+  res.render("categorias/index", {
+    categorias,
+    categoriaEditar,
+  });
+};
+
+/* =====================================================
+   EDITAR
+===================================================== */
+exports.editar = async (req, res) => {
+  await model.editar(req.params.id, {
+    nome: req.body.nome.toUpperCase(),
+    descricao: req.body.descricao,
+  });
+
+  res.redirect("/categorias");
+};
+
+/* =====================================================
+   EXCLUIR - sem fk
+===================================================== */
+exports.excluir = async (req, res) => {
+  await model.excluir(req.params.id);
+
+  res.redirect("/categorias");
+};
+
+/* =====================================================
+   API - LISTAR CATEGORIAS EM JSON
+===================================================== */
+exports.api = async (req, res) => {
+  try {
+    const categorias = await model.listar();
+
+    res.json(categorias);
+  } catch (erro) {
+    console.error(erro);
+
+    res.status(500).json({
+      erro: "Erro ao buscar categorias",
+    });
+  }
+};

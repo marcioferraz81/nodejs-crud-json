@@ -1,67 +1,67 @@
-// Importa módulos
-const fs = require("fs");
-const path = require("path");
+// MODEL UTILIZANDO FIREBASE REALTIME DATABASE
 
-// Caminho do arquivo JSON
-const caminho = path.join(__dirname, "../data/categorias.json");
+const db = require("../config/firebase");
 
-/* =====================================================
-   LER DADOS
-===================================================== */
-function lerDados() {
-    const dados = fs.readFileSync(caminho);
-    return JSON.parse(dados);
-}
+const ref = db.ref("categorias");
 
 /* =====================================================
    LISTAR
 ===================================================== */
-function listar() {
-    return lerDados();
+async function listar() {
+    const registros = await ref.once("value");
+    const dados = registros.val();
+
+    if (!dados) return [];
+
+    return Object.keys(dados).map(id => ({
+        id,
+        nome: dados[id].nome,
+        descricao: dados[id].descricao
+
+    }));
 }
 
 /* =====================================================
-   SALVAR DADOS NO JSON
+   SALVAR
 ===================================================== */
-function salvarDados(dados) {
-    fs.writeFileSync(
-        caminho,
-        JSON.stringify(dados, null, 2)
-    );
+async function salvar(categoria) {
+    const novaRef = ref.push();
+
+    await novaRef.set({
+        nome: categoria.nome,
+        descricao: categoria.descricao
+    });
 }
 
 /* =====================================================
-   CADASTRAR NOVA CATEGORIA (SEM EDIÇÃO)
+   BUSCAR POR ID
 ===================================================== */
-function salvar(categoria) {
-    let categorias = lerDados();
-    // Cria nova categoria com ID automático
-    const novo = {
-        id: categorias.length > 0
-            ? categorias[categorias.length - 1].id + 1
-            : 1,
-        nome: categoria.nome
+async function buscarPorId(id) {
+    const registros = await ref.child(id).once("value");
+
+    if (!registros.exists()) return null;
+
+    return {
+        id,
+        ...registros.val()
     };
-    categorias.push(novo);
-    salvarDados(categorias);
 }
 
-function buscarPorId(id) {
-    const categorias = lerDados();
-    return categorias.find(c => c.id == id);
+/* =====================================================
+   EDITAR
+===================================================== */
+async function editar(id, novaCategoria) {
+    await ref.child(id).update({
+        nome: novaCategoria.nome,
+        descricao: novaCategoria.descricao
+    });
 }
 
-function editar(id, novaCategoria) {
-    const categorias = lerDados();
-    const index = categorias.findIndex(c => c.id == id);
-    categorias[index].nome = novaCategoria.nome;
-    salvarDados(categorias);
-}
-
-function excluir(id) {
-    const categorias = lerDados();
-    const novaLista = categorias.filter(c => c.id != id);
-    salvarDados(novaLista);
+/* =====================================================
+   EXCLUIR
+===================================================== */
+async function excluir(id) {
+    await ref.child(id).remove();
 }
 
 /* =====================================================
