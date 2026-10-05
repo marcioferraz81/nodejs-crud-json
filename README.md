@@ -1,60 +1,21 @@
-# Projeto MVC CRUD com Firebase Realtime Database
+## Configuração do Firebase
 
-## Instalação
+1. Clone o projeto.
 
-```bash
+2. Instale as dependências:
+
 npm install
-```
 
-## Dependências adicionadas
+3. Crie um projeto no Firebase.
 
-```bash
-npm install firebase-admin
-```
+4. Gere uma nova chave de conta de serviço.
 
-## Configuração Firebase
+5. Renomeie o arquivo baixado para:
 
-1. Acesse o Firebase Console
-2. Crie um projeto
-3. Ative o Realtime Database
-4. Vá em:
-   - Configurações do Projeto
-   - Contas de Serviço
-   - Gerar nova chave privada
-5. Baixe o JSON
-6. Coloque o arquivo dentro da pasta: 
-```bash
-/config
-```
-
-7. Renomeie para:
-
-```bash
 serviceAccountKey.json
-```
 
-8. Edite:
+6. Coloque o arquivo na pasta indicada pelo projeto.
 
-```bash
-config/firebase.js
-```
+7. Execute:
 
-Troque:
-
-```js
-databaseURL: "https://SEU-PROJETO.firebaseio.com"
-```
-
-pela URL do seu Firebase.
-
-## Executar
-
-```bash
 npm run dev
-```
-
-ou
-
-```bash
-npm start
-```
